@@ -1,0 +1,2 @@
+@if (loading()) { <div class="p-4 text-secondary" role="status"><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Cargando…</div> }
+    @if (error()) { <div class="alert alert-danger m-3" role="alert">{{ error() }} <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="retry.emit()">Reintentar</button></div> }

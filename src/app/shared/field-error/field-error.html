@@ -1,0 +1,9 @@
+@if (control()?.invalid && control()?.touched) {
+    <div class="small text-danger mt-1" role="alert">
+      @if (control()?.hasError('required') || control()?.hasError('pattern')) { Este campo es obligatorio. }
+      @else if (control()?.hasError('email')) { Ingresa un correo válido. }
+      @else if (control()?.hasError('minlength')) { Usa al menos {{ control()?.getError('minlength').requiredLength }} caracteres. }
+      @else if (control()?.hasError('maxlength')) { Máximo {{ control()?.getError('maxlength').requiredLength }} caracteres. }
+      @else { Revisa el valor ingresado. }
+    </div>
+  }

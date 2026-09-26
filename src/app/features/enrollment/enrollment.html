@@ -1,0 +1,107 @@
+<div class="page-heading">
+  <div><span class="eyebrow">PROGRAMA ACADÉMICO</span>
+    <h1>{{ userId ? 'Gestionar inscripción' : 'Mi inscripción' }}</h1>
+    <p>{{ studentName() || 'Elige hasta 3 materias, cada una con un profesor diferente.' }}</p>
+  </div>@if (userId) { <a class="btn btn-outline-secondary" routerLink="/usuarios">Volver a usuarios</a> }
+</div>
+<app-load-state [loading]="loading()" [error]="error()" (retry)="loadEnrollment()" />
+@if (!loading() && !error()) {
+@if (!active()) { <div class="alert alert-warning">El estudiante está inactivo. Puedes retirar inscripciones existentes;
+  para agregar materias debe activarse la cuenta.</div> }
+<section class="card mb-4">
+  <div class="card-header bg-white py-3">
+    <h2 class="h5 mb-0">Materias inscritas</h2>
+  </div>
+  <div class="table-responsive table-scroll" tabindex="0" role="region" aria-label="Tabla de registros desplazable">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Materia</th>
+          <th scope="col">Profesor</th>
+          <th scope="col">Créditos</th>
+          <th scope="col" class="text-end">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (subject of current(); track subject.id) { <tr>
+          <td>{{ subject.name }}</td>
+          <td>{{ subject.professorName }}</td>
+          <td>{{ subject.credits }}</td>
+          <td>
+            <div class="table-actions"><a class="btn btn-sm btn-outline-primary"
+                [routerLink]="classmatesLink(subject.id)">Ver compañeros</a><button
+                class="btn btn-sm btn-outline-danger" (click)="remove(subject)">Retirar</button></div>
+          </td>
+        </tr> } @empty { <tr>
+          <td colspan="4" class="empty-state">Aún no hay materias inscritas.</td>
+        </tr> }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card mb-4">
+  <div class="card-body p-4">
+    <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+      <div>
+        <h2 class="h5">Tu selección</h2><span class="text-secondary small">Los cambios se aplican al guardar y
+          confirmar.</span>
+      </div>
+      <div class="d-flex gap-2"><span class="stat-pill">{{ selected().length }} / 3 materias</span><span
+          class="stat-pill">{{ credits }} / 9 créditos</span></div>
+    </div>
+    <div class="row g-3">@for (subject of selected(); track subject.id) { <div class="col-md-4">
+        <div class="selection-item h-100"><strong>{{ subject.name }}</strong>
+          <p class="small text-secondary mb-2">{{ subject.professorName }} · {{ subject.credits }} créditos</p><button
+            class="btn btn-sm btn-outline-secondary" [disabled]="!active()" (click)="choose(subject)">Quitar de
+            selección</button>
+        </div>
+      </div> } @empty { <p class="text-secondary mb-0">No hay materias seleccionadas. Puedes dejar tu inscripción vacía.
+      </p> }</div>
+    @if (selectionError()) { <div class="alert alert-warning mt-3 mb-0" role="alert">{{ selectionError() }}</div> }
+    <button class="btn btn-primary mt-4" [disabled]="ui.busy() || !form.dirty || !active()" (click)="save()">Guardar
+      inscripción</button>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header bg-white pt-3 border-0">
+    <h2 class="h5">Catálogo de materias</h2>
+  </div>
+  <form [formGroup]="filters" (ngSubmit)="loadSubjects()" class="filter-bar"><input class="form-control"
+      aria-label="Buscar materia" formControlName="search" placeholder="Buscar materia" maxlength="100"><button
+      class="btn btn-outline-primary" [disabled]="list.loading()">Buscar</button></form>
+  <app-load-state [loading]="list.loading()" [error]="list.error()" (retry)="loadSubjects()" />
+  @if (!list.loading() && !list.error()) { <div class="table-responsive table-scroll" tabindex="0" role="region"
+    aria-label="Tabla de registros desplazable">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Seleccionar</th>
+          <th scope="col">Materia</th>
+          <th scope="col">Profesor</th>
+          <th scope="col">Créditos</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (subject of list.data().items; track subject.id) { <tr>
+          <td><input class="form-check-input" type="checkbox" [attr.aria-label]="'Seleccionar ' + subject.name"
+              [checked]="isSelected(subject.id)"
+              [disabled]="!active() || (!isSelected(subject.id) && !!reason(subject))" (change)="choose(subject)"></td>
+          <td class="description-cell"><strong>{{ subject.name }}</strong>
+            <div class="small text-secondary">{{ subject.description }}</div>@if (!isSelected(subject.id) &&
+            reason(subject)) { <div class="small text-secondary">{{ reason(subject) }}</div> }
+          </td>
+          <td>{{ subject.professorName }}</td>
+          <td>{{ subject.credits }}</td>
+        </tr>
+        } @empty { <tr>
+          <td colspan="4" class="empty-state">No hay materias para estos filtros.</td>
+        </tr> }
+      </tbody>
+    </table>
+  </div> }<app-pager [size]="list.pageSize()" (sizeChanged)="list.pageSize.set($event); loadSubjects()"
+    [total]="list.data().totalRecords" [page]="list.data().pageNumber" [busy]="list.loading()"
+    (changed)="loadSubjects($event)" />
+</section>
+}

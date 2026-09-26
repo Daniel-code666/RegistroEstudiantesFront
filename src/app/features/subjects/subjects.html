@@ -1,0 +1,97 @@
+<div class="page-heading">
+  <div><span class="eyebrow">{{ professor ? 'ESPACIO DEL PROFESOR' : 'ADMINISTRACIÓN' }}</span>
+    <h1>{{ professor ? 'Mis materias' : 'Materias' }}</h1>
+    <p>{{ professor ? 'Gestiona tus clases. Puedes dictar hasta 2 materias activas.' : 'Administra el catálogo y las
+      asignaciones de profesores.' }}</p>
+  </div><button class="btn btn-primary" (click)="edit(null)">Crear materia</button>
+</div>
+@if (professor) { <div class="nav nav-pills mb-4 gap-2" aria-label="Vista de materias"><button class="nav-link"
+    [class.active]="!available()" (click)="changeView(false)">Mis materias</button><button class="nav-link"
+    [class.active]="available()" (click)="changeView(true)">Materias disponibles</button></div> }
+@if (lookupError()) { <div class="alert alert-danger">{{ lookupError() }} <button class="btn btn-sm btn-outline-danger"
+    (click)="loadProfessors()">Reintentar profesores</button></div> }
+@if (editing()) { <section class="card mb-4">
+  <div class="card-body p-4">
+    <h2 class="h5">{{ selected() ? 'Editar materia' : 'Crear materia' }}</h2>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="row g-3">
+        <div class="col-md-8"><label for="subject-name" class="form-label">Nombre</label><input id="subject-name"
+            class="form-control" formControlName="name" maxlength="100"><app-field-error
+            [control]="form.controls.name" /></div>
+        <div class="col-md-4"><label for="subject-credits" class="form-label">Créditos</label><input
+            id="subject-credits" class="form-control" value="3" readonly></div>
+        <div class="col-12"><label for="subject-description" class="form-label">Descripción</label><textarea
+            id="subject-description" class="form-control" formControlName="description" rows="3"
+            maxlength="500"></textarea><app-field-error [control]="form.controls.description" /></div>
+        @if (!professor) { <div class="col-12"><label for="subject-professor" class="form-label">Profesor</label><select
+            id="subject-professor" class="form-select" formControlName="professorId">
+            <option [ngValue]="null">Sin profesor</option>@for (user of professors(); track user.id) { <option
+              [ngValue]="user.id">{{ user.name }} {{ user.lastName }} · {{ user.email }}{{ user.active ? '' : '
+              (inactivo)' }}</option> }
+          </select>
+          <div class="form-text">Una materia sin profesor no admite inscripciones.</div>
+        </div> }
+        @else { <p class="small text-secondary mb-0">La materia quedará asignada a tu cuenta.</p> }
+      </div>
+      <div class="d-flex gap-2 mt-4"><button class="btn btn-primary"
+          [disabled]="ui.busy() || (!professor && !!lookupError())">Guardar</button><button type="button"
+          class="btn btn-outline-secondary" (click)="editing.set(false)">Cancelar</button></div>
+    </form>
+  </div>
+</section> }
+<section class="card">
+  <form [formGroup]="filters" (ngSubmit)="load()" class="filter-bar"><input aria-label="Buscar materias"
+      class="form-control" formControlName="search" placeholder="Buscar materia" maxlength="100">
+    @if (!available()) { <select class="form-select filter-select" aria-label="Estado de las materias"
+      formControlName="active">
+      <option value="true">Activas</option>
+      <option value="false">Inactivas</option>
+      <option value="">Todos los estados</option>
+    </select> }<button class="btn btn-outline-primary" [disabled]="list.loading()">Buscar</button></form>
+  <app-load-state [loading]="list.loading()" [error]="list.error()" (retry)="load()" />
+  @if (!list.loading() && !list.error()) { <div class="table-responsive table-scroll" tabindex="0" role="region"
+    aria-label="Tabla de registros desplazable">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Materia</th>
+          <th scope="col">Profesor</th>
+          <th scope="col">Créditos</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-end">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (subject of list.data().items; track subject.id) { <tr>
+          <td class="description-cell"><strong>{{ subject.name }}</strong>
+            <div class="small text-secondary">{{ subject.description }}</div>
+          </td>
+          <td>{{ subject.professorName }}</td>
+          <td>{{ subject.credits }}</td>
+          <td><span class="badge" [class.text-bg-success]="subject.active"
+              [class.text-bg-secondary]="!subject.active">{{ subject.active ? 'Activa' : 'Inactiva' }}</span></td>
+          <td>
+            <div class="table-actions">
+              @if (available()) { <button class="btn btn-sm btn-primary"
+                (click)="assignment(subject, true)">Asignarme</button> }
+              @else { <button class="btn btn-sm btn-outline-primary" (click)="edit(subject)">Editar</button>
+              @if (professor) { @if (subject.active) { <a class="btn btn-sm btn-outline-primary"
+                [routerLink]="['/profesor/materias', subject.id, 'alumnos']">Alumnos</a> }<button
+                class="btn btn-sm btn-outline-secondary" (click)="assignment(subject, false)">Desasignarme</button> }
+              <button class="btn btn-sm" [class.btn-outline-danger]="subject.active"
+                [class.btn-outline-success]="!subject.active" (click)="toggle(subject)">{{ subject.active ? 'Desactivar'
+                : 'Activar' }}</button>
+              }
+            </div>
+          </td>
+        </tr>
+        } @empty { <tr>
+          <td colspan="5" class="empty-state">{{ available() ? 'No hay materias disponibles para asignarte.' : 'No hay
+            materias para estos filtros.' }}</td>
+        </tr> }
+      </tbody>
+    </table>
+  </div> }<app-pager [size]="list.pageSize()" (sizeChanged)="list.pageSize.set($event); load()"
+    [total]="list.data().totalRecords" [page]="list.data().pageNumber" [busy]="list.loading()"
+    (changed)="load($event)" />
+</section>

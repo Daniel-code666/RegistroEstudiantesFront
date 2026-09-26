@@ -1,0 +1,39 @@
+<div class="page-heading">
+  <div><span class="eyebrow">MI CUENTA</span>
+    <h1>Mi perfil</h1>
+    <p>Consulta y actualiza tu información personal.</p>
+  </div><span class="badge rounded-pill text-bg-light border">{{ roleLabel(session.user()?.role ?? '') }}</span>
+</div>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <section class="card">
+      <div class="card-body p-4">
+        <h2 class="h5 mb-4">Datos personales</h2>
+        <form [formGroup]="form" (ngSubmit)="save()"><app-user-fields [form]="form" /><button
+            class="btn btn-primary mt-4" [disabled]="ui.busy() || form.pristine">Guardar cambios</button></form>
+      </div>
+    </section>
+  </div>
+  <div class="col-lg-4">
+    <section class="card">
+      <div class="card-body p-4">
+        <h2 class="h5">Cambiar contraseña</h2>
+        <p class="small text-secondary">Al cambiarla deberás iniciar sesión nuevamente.</p>
+        <form [formGroup]="password" (ngSubmit)="changePassword()">
+          <div class="mb-3"><label for="old-password" class="form-label">Contraseña actual</label><input
+              id="old-password" type="password" class="form-control" formControlName="currentPassword"
+              autocomplete="current-password"><app-field-error [control]="password.controls.currentPassword" /></div>
+          <div class="mb-3"><label for="new-password" class="form-label">Nueva contraseña</label><input
+              id="new-password" type="password" class="form-control" formControlName="newPassword"
+              autocomplete="new-password" maxlength="128"><app-field-error [control]="password.controls.newPassword" />
+          </div>
+          <div class="mb-3"><label for="confirm-password" class="form-label">Confirmar nueva contraseña</label><input
+              id="confirm-password" type="password" class="form-control" formControlName="confirmation"
+              autocomplete="new-password"><app-field-error [control]="password.controls.confirmation" />@if (mismatch())
+            { <div class="small text-danger">Las contraseñas no coinciden.</div> }</div>
+          <button class="btn btn-outline-primary" [disabled]="ui.busy()">Actualizar contraseña</button>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>

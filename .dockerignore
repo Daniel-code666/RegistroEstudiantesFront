@@ -1,0 +1,8 @@
+node_modules*
+.npm-cache
+.angular
+dist
+.git
+.vscode
+README.md
+**/*.spec.ts

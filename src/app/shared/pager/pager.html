@@ -1,0 +1,15 @@
+<nav class="table-pager d-flex align-items-center justify-content-between gap-3 flex-wrap p-3 border-top" aria-label="Paginación">
+  <label class="d-flex align-items-center gap-2 small text-secondary">
+    Registros por página
+    <select #pageSize class="form-select form-select-sm page-size-select" [value]="size()" [disabled]="busy()" (change)="changeSize(pageSize.value)">
+      @for (option of sizes; track option) { <option [value]="option">{{ option }}</option> }
+    </select>
+  </label>
+  <span class="small text-secondary" aria-live="polite">{{ first }}–{{ last }} de {{ total() }} registros · Página {{ page() }} de {{ pages }}</span>
+  <div class="btn-group">
+    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busy() || page() <= 1" (click)="changed.emit(1)" aria-label="Primera página">Primera</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busy() || page() <= 1" (click)="changed.emit(page() - 1)">Anterior</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busy() || page() >= pages" (click)="changed.emit(page() + 1)">Siguiente</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="busy() || page() >= pages" (click)="changed.emit(pages)" aria-label="Última página">Última</button>
+  </div>
+</nav>

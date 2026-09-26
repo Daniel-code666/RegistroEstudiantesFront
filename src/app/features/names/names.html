@@ -1,0 +1,27 @@
+<div class="page-heading">
+  <div><span class="eyebrow">{{ professor ? 'MIS CLASES' : 'MI CLASE' }}</span>
+    <h1>{{ professor ? 'Alumnos inscritos' : 'Compañeros de clase' }}</h1>
+    <p>{{ subjectName() }}</p>
+  </div><a class="btn btn-outline-secondary" [routerLink]="back">Volver</a>
+</div>
+<section class="card"><app-load-state [loading]="list.loading()" [error]="list.error()" (retry)="load()" />
+  @if (!list.loading() && !list.error()) { <div class="table-responsive table-scroll" tabindex="0" role="region"
+    aria-label="Tabla de registros desplazable">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Nombre completo</th>
+        </tr>
+      </thead>
+      <tbody>@for (person of list.data().items; track $index) { <tr>
+          <td>{{ person.name }}</td>
+        </tr> } @empty { <tr>
+          <td class="empty-state">No hay {{ professor ? 'alumnos inscritos' : 'otros compañeros inscritos' }} en esta
+            materia.</td>
+        </tr> }</tbody>
+    </table>
+  </div> }
+  <app-pager [size]="list.pageSize()" (sizeChanged)="list.pageSize.set($event); load()"
+    [total]="list.data().totalRecords" [page]="list.data().pageNumber" [busy]="list.loading()"
+    (changed)="load($event)" />
+</section>

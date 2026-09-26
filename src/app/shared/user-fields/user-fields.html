@@ -1,0 +1,9 @@
+<div [formGroup]="form()" class="row g-3">
+    <div class="col-md-6"><label for="user-name" class="form-label">Nombres</label><input id="user-name" class="form-control" formControlName="name" maxlength="100" autocomplete="given-name"><app-field-error [control]="form().get('name')" /></div>
+    <div class="col-md-6"><label for="user-last" class="form-label">Apellidos</label><input id="user-last" class="form-control" formControlName="lastName" maxlength="100" autocomplete="family-name"><app-field-error [control]="form().get('lastName')" /></div>
+    <div class="col-12"><label for="user-email" class="form-label">Correo electrónico</label><input id="user-email" class="form-control" type="email" formControlName="email" maxlength="254" autocomplete="email"><app-field-error [control]="form().get('email')" /></div>
+    <div class="col-md-6"><label for="user-type" class="form-label">Tipo de identificación</label><select id="user-type" class="form-select" formControlName="identificationType">
+      <option value="CedulaCiudadania">Cédula de ciudadanía</option><option value="CedulaExtranjeria">Cédula de extranjería</option><option value="TarjetaIdentidad">Tarjeta de identidad</option><option value="Pasaporte">Pasaporte</option><option value="Nit">NIT</option>
+    </select><app-field-error [control]="form().get('identificationType')" /></div>
+    <div class="col-md-6"><label for="user-document" class="form-label">Número de identificación</label><input id="user-document" class="form-control" formControlName="identificationNumber" maxlength="30"><app-field-error [control]="form().get('identificationNumber')" /></div>
+  </div>

@@ -1,0 +1,14 @@
+@if (ui.confirmation(); as dialog) {
+    <div class="modal-backdrop show"></div>
+    <div class="modal d-block" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message" (click)="backdrop($event)">
+      <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+        <div class="modal-header"><h2 class="modal-title fs-5" id="confirm-title">{{ dialog.title }}</h2>
+          <button type="button" class="btn-close" aria-label="Cerrar" [disabled]="ui.busy()" (click)="ui.cancel()"></button></div>
+        <div class="modal-body"><p id="confirm-message">{{ dialog.message }}</p>
+          @if (ui.error()) { <div class="alert alert-danger mb-0" role="alert">{{ ui.error() }}</div> }</div>
+        <div class="modal-footer"><button type="button" class="btn btn-outline-secondary cancel-confirm" [disabled]="ui.busy()" (click)="ui.cancel()">Cancelar</button>
+          <button type="button" class="btn" [class.btn-danger]="dialog.dangerous" [class.btn-primary]="!dialog.dangerous" [disabled]="ui.busy()" (click)="ui.accept()">
+            {{ ui.busy() ? 'Procesando…' : 'Confirmar' }}</button></div>
+      </div></div>
+    </div>
+  }
