@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Api } from '../api';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { toHttpParams } from '../api';
 import { Page, User } from '../models';
 
 export interface UserFilters {
@@ -12,48 +14,49 @@ export interface UserFilters {
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
-  private readonly api = inject(Api);
+  private readonly http = inject(HttpClient);
+  private readonly url = '/api/users';
 
   getAll(filters: UserFilters): Promise<Page<User>> {
-    return this.api.get<Page<User>>('users', { ...filters });
+    return firstValueFrom(this.http.get<Page<User>>(this.url, { params: toHttpParams(filters) }));
   }
 
   getById(id: string | number): Promise<User> {
-    return this.api.get<User>(`users/${id}`);
+    return firstValueFrom(this.http.get<User>(`${this.url}/${id}`));
   }
 
   getCurrent(): Promise<User> {
-    return this.api.get<User>('users/me');
+    return firstValueFrom(this.http.get<User>(`${this.url}/me`));
   }
 
   create(request: unknown): Promise<void> {
-    return this.api.post<void>('users', request);
+    return firstValueFrom(this.http.post<void>(this.url, request));
   }
 
   update(id: number, request: unknown): Promise<void> {
-    return this.api.put<void>(`users/${id}`, request);
+    return firstValueFrom(this.http.put<void>(`${this.url}/${id}`, request));
   }
 
   setActive(id: number, active: boolean): Promise<void> {
     return active
-      ? this.api.patch<void>(`users/${id}/activate`)
-      : this.api.delete<void>(`users/${id}`);
+      ? firstValueFrom(this.http.patch<void>(`${this.url}/${id}/activate`, {}))
+      : firstValueFrom(this.http.delete<void>(`${this.url}/${id}`));
   }
 
   resetPassword(id: number, request: unknown): Promise<void> {
-    return this.api.put<void>(`users/${id}/password`, request);
+    return firstValueFrom(this.http.put<void>(`${this.url}/${id}/password`, request));
   }
 
   register(request: unknown): Promise<void> {
-    return this.api.post<void>('users/register', request);
+    return firstValueFrom(this.http.post<void>(`${this.url}/register`, request));
   }
 
   updateProfile(request: unknown): Promise<User> {
-    return this.api.put<User>('users/me', request);
+    return firstValueFrom(this.http.put<User>(`${this.url}/me`, request));
   }
 
   changePassword(request: unknown): Promise<void> {
-    return this.api.put<void>('users/me/password', request);
+    return firstValueFrom(this.http.put<void>(`${this.url}/me/password`, request));
   }
 
   async getProfessors(): Promise<User[]> {

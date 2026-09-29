@@ -1,26 +1,28 @@
 import { Injectable, inject } from '@angular/core';
-import { Api } from '../api';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { Role } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class RolesService {
-  private readonly api = inject(Api);
+  private readonly http = inject(HttpClient);
+  private readonly url = '/api/Role';
 
   getAll(): Promise<Role[]> {
-    return this.api.get<Role[]>('Role');
+    return firstValueFrom(this.http.get<Role[]>(this.url));
   }
 
   create(request: unknown): Promise<void> {
-    return this.api.post<void>('Role', request);
+    return firstValueFrom(this.http.post<void>(this.url, request));
   }
 
   update(id: number, request: unknown): Promise<void> {
-    return this.api.put<void>(`Role/${id}`, request);
+    return firstValueFrom(this.http.put<void>(`${this.url}/${id}`, request));
   }
 
   setActive(id: number, active: boolean): Promise<void> {
     return active
-      ? this.api.patch<void>(`Role/${id}/activate`)
-      : this.api.delete<void>(`Role/${id}`);
+      ? firstValueFrom(this.http.patch<void>(`${this.url}/${id}/activate`, {}))
+      : firstValueFrom(this.http.delete<void>(`${this.url}/${id}`));
   }
 }

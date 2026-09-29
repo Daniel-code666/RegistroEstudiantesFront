@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Api } from '../api';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { toHttpParams } from '../api';
 import { Page, PersonName, Subject } from '../models';
 
 export interface SubjectFilters {
@@ -11,33 +13,37 @@ export interface SubjectFilters {
 
 @Injectable({ providedIn: 'root' })
 export class SubjectsService {
-  private readonly api = inject(Api);
+  private readonly http = inject(HttpClient);
 
   getAll(filters: SubjectFilters, professor = false, available = false): Promise<Page<Subject>> {
     const path = this.base(professor) + (available ? '/available' : '');
-    return this.api.get<Page<Subject>>(path, { ...filters });
+    return firstValueFrom(this.http.get<Page<Subject>>(path, { params: toHttpParams(filters) }));
   }
 
   getById(id: string | number): Promise<Subject> {
-    return this.api.get<Subject>(`Subject/${id}`);
+    return firstValueFrom(this.http.get<Subject>(`/api/Subject/${id}`));
   }
 
   create(request: unknown, professor = false): Promise<void> {
-    return this.api.post<void>(this.base(professor), request);
+    return firstValueFrom(this.http.post<void>(this.base(professor), request));
   }
 
   update(id: number, request: unknown, professor = false): Promise<void> {
-    return this.api.put<void>(`${this.base(professor)}/${id}`, request);
+    return firstValueFrom(this.http.put<void>(`${this.base(professor)}/${id}`, request));
   }
 
   setActive(id: number, active: boolean, professor = false): Promise<void> {
     const path = `${this.base(professor)}/${id}`;
-    return active ? this.api.patch<void>(`${path}/activate`) : this.api.delete<void>(path);
+    return active
+      ? firstValueFrom(this.http.patch<void>(`${path}/activate`, {}))
+      : firstValueFrom(this.http.delete<void>(path));
   }
 
   setAssignment(id: number, assigned: boolean): Promise<void> {
     const path = `${this.base(true)}/${id}/assignment`;
-    return assigned ? this.api.put<void>(path) : this.api.delete<void>(path);
+    return assigned
+      ? firstValueFrom(this.http.put<void>(path, {}))
+      : firstValueFrom(this.http.delete<void>(path));
   }
 
   getProfessorStudents(
@@ -45,13 +51,14 @@ export class SubjectsService {
     pageNumber: number,
     pageSize: number,
   ): Promise<Page<PersonName>> {
-    return this.api.get<Page<PersonName>>(`professors/me/subjects/${subjectId}/students`, {
-      pageNumber,
-      pageSize,
-    });
+    return firstValueFrom(
+      this.http.get<Page<PersonName>>(`/api/professors/me/subjects/${subjectId}/students`, {
+        params: toHttpParams({ pageNumber, pageSize }),
+      }),
+    );
   }
 
   private base(professor: boolean): string {
-    return professor ? 'professors/me/subjects' : 'Subject';
+    return professor ? '/api/professors/me/subjects' : '/api/Subject';
   }
 }

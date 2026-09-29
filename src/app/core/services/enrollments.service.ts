@@ -1,21 +1,23 @@
 import { Injectable, inject } from '@angular/core';
-import { Api } from '../api';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { toHttpParams } from '../api';
 import { Enrollment, Page, PersonName } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class EnrollmentsService {
-  private readonly api = inject(Api);
+  private readonly http = inject(HttpClient);
 
   get(userId: string | null): Promise<Enrollment> {
-    return this.api.get<Enrollment>(this.base(userId));
+    return firstValueFrom(this.http.get<Enrollment>(this.base(userId)));
   }
 
   update(userId: string | null, request: unknown): Promise<void> {
-    return this.api.put<void>(this.base(userId), request);
+    return firstValueFrom(this.http.put<void>(this.base(userId), request));
   }
 
   removeSubject(userId: string | null, subjectId: number): Promise<void> {
-    return this.api.delete<void>(`${this.base(userId)}/${subjectId}`);
+    return firstValueFrom(this.http.delete<void>(`${this.base(userId)}/${subjectId}`));
   }
 
   getClassmates(
@@ -24,13 +26,14 @@ export class EnrollmentsService {
     pageNumber: number,
     pageSize: number,
   ): Promise<Page<PersonName>> {
-    return this.api.get<Page<PersonName>>(`${this.base(userId)}/${subjectId}/classmates`, {
-      pageNumber,
-      pageSize,
-    });
+    return firstValueFrom(
+      this.http.get<Page<PersonName>>(`${this.base(userId)}/${subjectId}/classmates`, {
+        params: toHttpParams({ pageNumber, pageSize }),
+      }),
+    );
   }
 
   private base(userId: string | null): string {
-    return `enrollments/${userId ?? 'me'}`;
+    return `/api/enrollments/${userId ?? 'me'}`;
   }
 }

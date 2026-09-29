@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { Api } from '../api';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { LoginResponse } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly api = inject(Api);
+  private readonly http = inject(HttpClient);
+  private readonly url = '/api/auth';
 
   login(email: string, password: string): Promise<LoginResponse> {
-    return this.api.post<LoginResponse>('auth/login', { email, password });
+    return firstValueFrom(this.http.post<LoginResponse>(`${this.url}/login`, { email, password }));
   }
 }

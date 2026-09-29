@@ -1,32 +1,15 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { HttpErrorResponse, HttpParams } from '@angular/common/http';
 
-@Injectable({ providedIn: 'root' })
-export class Api {
-  private readonly http = inject(HttpClient);
-  get<T>(
-    path: string,
-    query: Record<string, string | number | boolean | null | undefined> = {},
-  ): Promise<T> {
-    let params = new HttpParams();
-    for (const [key, value] of Object.entries(query)) {
-      if (value !== undefined && value !== null) params = params.set(key, String(value));
+export function toHttpParams(parameters: object): HttpParams {
+  let params = new HttpParams();
+
+  for (const [key, value] of Object.entries(parameters)) {
+    if (value !== undefined && value !== null) {
+      params = params.set(key, String(value));
     }
-    return firstValueFrom(this.http.get<T>(`/api/${path}`, { params }));
   }
-  post<T>(path: string, body: unknown): Promise<T> {
-    return firstValueFrom(this.http.post<T>(`/api/${path}`, body));
-  }
-  put<T>(path: string, body: unknown = {}): Promise<T> {
-    return firstValueFrom(this.http.put<T>(`/api/${path}`, body));
-  }
-  patch<T>(path: string): Promise<T> {
-    return firstValueFrom(this.http.patch<T>(`/api/${path}`, {}));
-  }
-  delete<T>(path: string): Promise<T> {
-    return firstValueFrom(this.http.delete<T>(`/api/${path}`));
-  }
+
+  return params;
 }
 
 export function errorMessage(error: unknown): string {
