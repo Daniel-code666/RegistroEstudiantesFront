@@ -3,7 +3,7 @@ import { Ui } from '../ui';
 
 @Component({
   selector: 'app-confirm-dialog',
-  templateUrl: './confirm-dialog.html'
+  templateUrl: './confirm-dialog.html',
 })
 export class ConfirmDialog implements OnDestroy {
   readonly ui = inject(Ui);
@@ -16,21 +16,41 @@ export class ConfirmDialog implements OnDestroy {
         document.body.classList.add('modal-open');
         document.querySelector('main')?.setAttribute('inert', '');
         document.querySelector('header')?.setAttribute('inert', '');
-        setTimeout(() => this.element.nativeElement.querySelector<HTMLButtonElement>('.cancel-confirm')?.focus());
-      } else { this.restore(); }
+        setTimeout(() =>
+          this.element.nativeElement.querySelector<HTMLButtonElement>('.cancel-confirm')?.focus(),
+        );
+      } else {
+        this.restore();
+      }
     });
   }
-  backdrop(event: MouseEvent): void { if (event.target === event.currentTarget) this.ui.cancel(); }
+  backdrop(event: MouseEvent): void {
+    if (event.target === event.currentTarget) this.ui.cancel();
+  }
   @HostListener('document:keydown', ['$event'])
   keydown(event: KeyboardEvent): void {
     if (!this.ui.confirmation()) return;
-    if (event.key === 'Escape') { event.preventDefault(); this.ui.cancel(); }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.ui.cancel();
+    }
     if (event.key !== 'Tab') return;
-    const buttons = Array.from(this.element.nativeElement.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'));
-    const first = buttons[0], last = buttons.at(-1);
-    if (!first || !last) { event.preventDefault(); return; }
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    const buttons = Array.from(
+      this.element.nativeElement.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'),
+    );
+    const first = buttons[0],
+      last = buttons.at(-1);
+    if (!first || !last) {
+      event.preventDefault();
+      return;
+    }
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
   private restore(): void {
     document.body.classList.remove('modal-open');
@@ -39,5 +59,7 @@ export class ConfirmDialog implements OnDestroy {
     this.previousFocus?.focus();
     this.previousFocus = null;
   }
-  ngOnDestroy(): void { this.restore(); }
+  ngOnDestroy(): void {
+    this.restore();
+  }
 }

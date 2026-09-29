@@ -9,8 +9,8 @@ describe('Pager', () => {
     fixture.componentRef.setInput('page', 2);
     const sizes: number[] = [];
     const pages: number[] = [];
-    fixture.componentInstance.sizeChanged.subscribe(value => sizes.push(value));
-    fixture.componentInstance.changed.subscribe(value => pages.push(value));
+    fixture.componentInstance.sizeChanged.subscribe((value) => sizes.push(value));
+    fixture.componentInstance.changed.subscribe((value) => pages.push(value));
     await fixture.whenStable();
 
     const element = fixture.nativeElement as HTMLElement;
@@ -28,7 +28,7 @@ describe('Pager', () => {
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('0–0 de 0');
-    expect([...element.querySelectorAll('button')].every(button => button.disabled)).toBe(true);
+    expect([...element.querySelectorAll('button')].every((button) => button.disabled)).toBe(true);
   });
 
   it('disables the selector and navigation while loading', async () => {
@@ -39,6 +39,6 @@ describe('Pager', () => {
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('select')!.disabled).toBe(true);
-    expect([...element.querySelectorAll('button')].every(button => button.disabled)).toBe(true);
+    expect([...element.querySelectorAll('button')].every((button) => button.disabled)).toBe(true);
   });
 });

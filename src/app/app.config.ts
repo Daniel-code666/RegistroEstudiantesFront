@@ -5,5 +5,9 @@ import { routes } from './app.routes';
 import { sessionInterceptor } from './core/session';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top' })), provideHttpClient(withInterceptors([sessionInterceptor]))]
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
+    provideHttpClient(withInterceptors([sessionInterceptor])),
+  ],
 };
